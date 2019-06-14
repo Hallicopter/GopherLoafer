@@ -8,6 +8,7 @@ import (
 	"image/color/palette"
 	"image/draw"
 	"image/gif"
+	"image/jpeg"
 	"image/png"
 	"io"
 	"io/ioutil"
@@ -48,21 +49,20 @@ func main() {
 	var images []*image.RGBA
 	var colours pixelArray
 
-	h = 100
-	w = 100
-	cnt = 1000
-
 	fmt.Println("Go Gopher boi! x20")
 
-	getImage()
+	img := getImage()
+	h = img.Bounds().Max.X
+	w = img.Bounds().Max.Y
+	cnt = 10
 
 	for i := 0; i < 20; i++ {
-		img := image.NewRGBA(image.Rect(0, 0, h, w))
+		// img := image.NewRGBA(image.Rect(0, 0, h, w))
 
 		url := fmt.Sprintf("https://api.noopschallenge.com/hexbot?count=%d&width=%d&height=%d%s",
 			cnt, h, w, "")
 
-		images = append(images, img)
+		images = append(images, img.(*image.RGBA))
 		response, err := http.Get(url)
 		if err != nil {
 			fmt.Println("HTTP request has gophailed smh")
@@ -81,6 +81,10 @@ func main() {
 	saveGIF("giffun.gif", images)
 
 	fmt.Println("Crocodile Done-deey")
+}
+
+func init() {
+	image.RegisterFormat("jpeg", "jpeg", jpeg.Decode, jpeg.DecodeConfig)
 }
 
 func parseHexColor(s string) (c color.RGBA, err error) {
@@ -131,7 +135,7 @@ func saveGIF(fileName string, images []*image.RGBA) {
 	gif.EncodeAll(f, outGif)
 }
 
-func getImage() {
+func getImage() image.Image {
 	var list imgUrls
 	endpoint := "https://api.unsplash.com/photos/random?client_id=4b30f506ef4e2e506abe9edd3156eb33dc99194ddeb1de27bbd73aac14c7da84"
 	response, err := http.Get(endpoint)
@@ -140,7 +144,6 @@ func getImage() {
 	} else {
 		data, _ := ioutil.ReadAll(response.Body)
 		json.Unmarshal([]byte(data), &list)
-		fmt.Printf("Look smh --> %+v", list.Urls.Thumb)
 	}
 
 	response, e := http.Get(list.Urls.Thumb)
@@ -149,7 +152,7 @@ func getImage() {
 	}
 	defer response.Body.Close()
 
-	file, err := os.Create("output/stolen.png")
+	file, err := os.Create("output/stolen.jpeg")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -161,4 +164,23 @@ func getImage() {
 	}
 
 	fmt.Println("Stole the image.")
+
+	infile, err := os.Open("output/stolen.jpeg")
+	if err != nil {
+		fmt.Println("Couldn't open stolen goods smh")
+		panic(err)
+	}
+	defer infile.Close()
+
+	thumbnail, _, err := image.Decode(infile)
+	if err != nil {
+		fmt.Println("Big problem with decoding image.")
+		panic(err)
+	}
+
+	b := thumbnail.Bounds()
+	m := image.NewRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
+	draw.Draw(m, m.Bounds(), thumbnail, b.Min, draw.Src)
+
+	return m
 }
