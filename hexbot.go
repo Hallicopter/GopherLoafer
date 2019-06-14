@@ -51,14 +51,15 @@ func main() {
 
 	fmt.Println("Go Gopher boi! x20")
 
-	img := getImage()
-	h = img.Bounds().Max.X
-	w = img.Bounds().Max.Y
-	cnt = 10
+	getImage()
 
+	cnt = 1000
+	fmt.Println(h, w)
 	for i := 0; i < 20; i++ {
 		// img := image.NewRGBA(image.Rect(0, 0, h, w))
-
+		img := readStolen()
+		h = img.Bounds().Max.X
+		w = img.Bounds().Max.Y
 		url := fmt.Sprintf("https://api.noopschallenge.com/hexbot?count=%d&width=%d&height=%d%s",
 			cnt, h, w, "")
 
@@ -135,7 +136,7 @@ func saveGIF(fileName string, images []*image.RGBA) {
 	gif.EncodeAll(f, outGif)
 }
 
-func getImage() image.Image {
+func getImage() {
 	var list imgUrls
 	endpoint := "https://api.unsplash.com/photos/random?client_id=4b30f506ef4e2e506abe9edd3156eb33dc99194ddeb1de27bbd73aac14c7da84"
 	response, err := http.Get(endpoint)
@@ -164,7 +165,9 @@ func getImage() image.Image {
 	}
 
 	fmt.Println("Stole the image.")
+}
 
+func readStolen() image.Image {
 	infile, err := os.Open("output/stolen.jpeg")
 	if err != nil {
 		fmt.Println("Couldn't open stolen goods smh")
