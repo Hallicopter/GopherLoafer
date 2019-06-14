@@ -102,7 +102,7 @@ func parseHexColor(s string) (c color.RGBA, err error) {
 }
 
 func saveImg(fileName string, img image.Image) {
-	f, err := os.Create(fileName)
+	f, err := os.Create("output/" + fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -120,7 +120,7 @@ func saveImg(fileName string, img image.Image) {
 func saveGIF(fileName string, images []*image.RGBA) {
 
 	outGif := &gif.GIF{}
-	f, _ := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0600)
+	f, _ := os.OpenFile("output/"+fileName, os.O_WRONLY|os.O_CREATE, 0600)
 	for _, simage := range images {
 		palettedImage := image.NewPaletted(image.Rect(0, 0, h, w), palette.Plan9)
 		draw.Draw(palettedImage, palettedImage.Rect, simage, image.Rect(0, 0, h, w).Min, draw.Over)
@@ -149,7 +149,7 @@ func getImage() {
 	}
 	defer response.Body.Close()
 
-	file, err := os.Create("stolen.png")
+	file, err := os.Create("output/stolen.png")
 	if err != nil {
 		log.Fatal(err)
 	}
