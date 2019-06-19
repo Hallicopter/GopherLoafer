@@ -33,7 +33,8 @@ func main() {
 	h := img.Bounds().Max.Y
 	w := img.Bounds().Max.X
 	palette := getPalette(img, 20)
-	dc := gg.NewContextForImage(img)
+	// dc := gg.NewContextForImage(img)
+	dc := gg.NewContext(w, h)
 
 	for i := 0; i < w; i += 10 {
 		for j := 0; j < h; j += 10 {
