@@ -13,6 +13,10 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/lucasb-eyer/go-colorful"
+
+	"github.com/fogleman/gg"
+
 	prominentcolor "github.com/EdlinOrg/prominentcolor"
 )
 
@@ -25,8 +29,9 @@ type imgUrls struct {
 }
 
 func main() {
-	getImage()
-	getPalette(readStolen(), 20)
+	// getImage()
+	palette := getPalette(readStolen(), 20)
+	paintDot(readStolen(), 300, 300, 100, palette[0])
 }
 
 func getImage() {
@@ -40,7 +45,7 @@ func getImage() {
 		json.Unmarshal([]byte(data), &list)
 	}
 
-	response, e := http.Get(list.Urls.Full)
+	response, e := http.Get(list.Urls.Regular)
 	if e != nil {
 		log.Fatal(e)
 	}
@@ -111,4 +116,28 @@ func getPalette(img image.Image, k int) []color.RGBA {
 	png.Encode(f, paletteImg)
 
 	return palette
+}
+
+func paintDot(canvas image.Image, x float64, y float64, r float64, shade color.RGBA) {
+	dc := gg.NewContextForImage(canvas)
+	dc.SetRGBA255(int(shade.R), int(shade.G), int(shade.B), int(shade.A))
+	dc.DrawPoint(x, y, r)
+	dc.Fill()
+	dc.SavePNG("out.png")
+}
+
+func getClosestColor(palette []color.RGBA, shade color.RGBA) color.RGBA {
+	var closest color.RGBA
+	var minDst float64 = 100
+
+	c1 := colorful.Color{float64(shade.R) / 255.0, float64(shade.G) / 255.0, float64(shade.B) / 255.0}
+
+	for i, clr := range palette {
+		dst := c1.DistanceLab(colorful.Color{float64(clr.R) / 255.0,
+			float64(clr.G) / 255.0, float64(clr.B) / 255.0})
+		if dst < minDst {
+			closest = palette[i]
+		}
+	}
+	return closest
 }
