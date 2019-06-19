@@ -13,11 +13,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/lucasb-eyer/go-colorful"
-
+	"github.com/EdlinOrg/prominentcolor"
 	"github.com/fogleman/gg"
-
-	prominentcolor "github.com/EdlinOrg/prominentcolor"
+	"github.com/lucasb-eyer/go-colorful"
 )
 
 type imgLinks struct {
@@ -30,8 +28,25 @@ type imgUrls struct {
 
 func main() {
 	// getImage()
-	palette := getPalette(readStolen(), 20)
-	paintDot(readStolen(), 300, 300, 100, palette[0])
+	img := readStolen("output/stolen.jpeg")
+
+	h := img.Bounds().Max.Y
+	w := img.Bounds().Max.X
+	palette := getPalette(img, 20)
+	dc := gg.NewContextForImage(img)
+
+	for i := 0; i < w; i += 10 {
+		for j := 0; j < h; j += 10 {
+			r, g, b, _ := img.At(i, j).RGBA()
+			closest := color.RGBA{R: uint8(r),
+				G: uint8(g),
+				B: uint8(b),
+				A: 0xff}
+
+			dc = paintDot(dc, float64(i), float64(j), 5, getClosestColor(palette, closest))
+		}
+	}
+	dc.SaveJPG("output/out.jpeg", 80)
 }
 
 func getImage() {
@@ -65,8 +80,8 @@ func getImage() {
 	fmt.Println("Stole the image.")
 }
 
-func readStolen() image.Image {
-	infile, err := os.Open("output/stolen.jpeg")
+func readStolen(url string) image.Image {
+	infile, err := os.Open(url)
 	if err != nil {
 		fmt.Println("Couldn't open stolen goods smh")
 		panic(err)
@@ -118,12 +133,12 @@ func getPalette(img image.Image, k int) []color.RGBA {
 	return palette
 }
 
-func paintDot(canvas image.Image, x float64, y float64, r float64, shade color.RGBA) {
-	dc := gg.NewContextForImage(canvas)
+func paintDot(dc *gg.Context, x float64, y float64, r float64, shade color.RGBA) *gg.Context {
 	dc.SetRGBA255(int(shade.R), int(shade.G), int(shade.B), int(shade.A))
 	dc.DrawPoint(x, y, r)
 	dc.Fill()
-	dc.SavePNG("out.png")
+
+	return dc
 }
 
 func getClosestColor(palette []color.RGBA, shade color.RGBA) color.RGBA {
@@ -135,8 +150,10 @@ func getClosestColor(palette []color.RGBA, shade color.RGBA) color.RGBA {
 	for i, clr := range palette {
 		dst := c1.DistanceLab(colorful.Color{float64(clr.R) / 255.0,
 			float64(clr.G) / 255.0, float64(clr.B) / 255.0})
+		// fmt.Println(minDst, dst)
 		if dst < minDst {
 			closest = palette[i]
+			minDst = dst
 		}
 	}
 	return closest
