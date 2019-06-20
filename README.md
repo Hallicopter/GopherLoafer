@@ -7,7 +7,7 @@ Idk pulls random images, makes it into a meaningless gif, waste of time smh. API
 
 ### Two (wip)
 
-Generates a palette using kmeans, and does some sloppy colour distance measurement for generating "art". Lots of improvements can be done, such as generating eye pleasing outputs.
+Generates a palette using kmeans, and does some sloppy colour distance measurement for generating "art". Lots of improvements can be made, such as generating good results.
 
 
 <img src="https://raw.githubusercontent.com/Hallicopter/GopherLoafer/master/Two/output/stolen.jpeg" width="600">
