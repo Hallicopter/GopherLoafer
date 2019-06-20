@@ -33,19 +33,19 @@ func main() {
 
 	h := img.Bounds().Max.Y
 	w := img.Bounds().Max.X
-	palette := getPalette(img, 20)
+	palette := getPalette(img, 40)
 	// dc := gg.NewContextForImage(img)
 	dc := gg.NewContext(w, h)
 
-	for i := 0; i < w; i += 7 {
-		for j := 0; j < h; j += 7 {
+	for i := 0; i < w; i += 4 {
+		for j := 0; j < h; j += 4 {
 			r, g, b, _ := img.At(i, j).RGBA()
-			closest := color.RGBA{R: uint8(r),
-				G: uint8(g),
-				B: uint8(b),
+			closest := color.RGBA{R: uint8(int(r) + posOrNeg()*rand.Intn(50)),
+				G: uint8(int(g) + posOrNeg()*rand.Intn(50)),
+				B: uint8(int(b) + posOrNeg()*rand.Intn(50)),
 				A: 0xff}
 
-			dc = paintDot(dc, float64(i), float64(j), 6, getClosestColor(palette, closest))
+			dc = paintDot(dc, float64(i), float64(j), 3, getClosestColor(palette, closest))
 		}
 	}
 	dc.SaveJPG("output/out.jpeg", 80)
@@ -139,7 +139,7 @@ func paintDot(dc *gg.Context, x float64, y float64, r float64, shade color.RGBA)
 	dc.SetRGBA255(int(shade.R), int(shade.G), int(shade.B), int(shade.A))
 	rand := float64(rand.Intn(360))
 	dc.RotateAbout(gg.Radians(rand), x, y)
-	dc.DrawEllipse(x, y, r, r/0.7)
+	dc.DrawEllipse(x, y, r, r/0.3)
 	dc.RotateAbout(gg.Radians(-rand), x, y)
 	dc.Fill()
 
@@ -162,4 +162,14 @@ func getClosestColor(palette []color.RGBA, shade color.RGBA) color.RGBA {
 		}
 	}
 	return closest
+}
+
+func posOrNeg() int {
+	n := rand.Intn(1)
+
+	if n == 0 {
+		return -1
+	}
+
+	return 0
 }
