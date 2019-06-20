@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/color/palette"
 	"image/draw"
+	"image/gif"
 	"image/png"
 	"io"
 	"io/ioutil"
@@ -27,8 +29,25 @@ type imgUrls struct {
 	Urls imgLinks
 }
 
+var h, w int
+
 func main() {
 	// getImage()
+	var images []*image.RGBA
+
+	for i := 0; i < 10; i++ {
+		img := artistify(false)
+		h = img.Bounds().Max.X
+		w = img.Bounds().Max.Y
+		images = append(images, img.(*image.RGBA))
+	}
+
+	generateGif("test.gif", images)
+	artistify(true)
+
+}
+
+func artistify(saveFlag bool) image.Image {
 	img := readStolen("output/stolen.jpeg")
 
 	h := img.Bounds().Max.Y
@@ -48,7 +67,12 @@ func main() {
 			dc = paintDot(dc, float64(i), float64(j), 3, getClosestColor(palette, closest))
 		}
 	}
-	dc.SaveJPG("output/out.jpeg", 80)
+	if saveFlag {
+		dc.SaveJPG("output/out.jpeg", 80)
+	} else {
+		return dc.Image()
+	}
+	return dc.Image()
 }
 
 func getImage() {
@@ -162,6 +186,20 @@ func getClosestColor(palette []color.RGBA, shade color.RGBA) color.RGBA {
 		}
 	}
 	return closest
+}
+
+func generateGif(fileName string, images []*image.RGBA) {
+
+	outGif := &gif.GIF{}
+	f, _ := os.OpenFile("output/"+fileName, os.O_WRONLY|os.O_CREATE, 0600)
+	for _, simage := range images {
+		palettedImage := image.NewPaletted(image.Rect(0, 0, h, w), palette.Plan9)
+		draw.Draw(palettedImage, palettedImage.Rect, simage, image.Rect(0, 0, h, w).Min, draw.Over)
+		outGif.Image = append(outGif.Image, palettedImage)
+		outGif.Delay = append(outGif.Delay, 1)
+	}
+	defer f.Close()
+	gif.EncodeAll(f, outGif)
 }
 
 func posOrNeg() int {
