@@ -16,6 +16,6 @@ Generates a palette using kmeans, and does some sloppy colour distance measureme
 <img src="https://raw.githubusercontent.com/Hallicopter/GopherLoafer/master/Two/output/palette.png" width="600">
 
 Also, added a new GIF generation feature due to popular demand. Also, my eyes weren't hurting enough yet so.
-Note the colour palette seems to have changes. Some weird gif quirk. Will try to fix, looks dead.
+Note the colour palette seems to have changed. Some weird gif quirk. Will try to fix, looks dead.
 
 <img src="https://raw.githubusercontent.com/Hallicopter/GopherLoafer/master/Two/output/test.gif" width="600">
