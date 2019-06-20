@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 
@@ -36,15 +37,15 @@ func main() {
 	// dc := gg.NewContextForImage(img)
 	dc := gg.NewContext(w, h)
 
-	for i := 0; i < w; i += 10 {
-		for j := 0; j < h; j += 10 {
+	for i := 0; i < w; i += 7 {
+		for j := 0; j < h; j += 7 {
 			r, g, b, _ := img.At(i, j).RGBA()
 			closest := color.RGBA{R: uint8(r),
 				G: uint8(g),
 				B: uint8(b),
 				A: 0xff}
 
-			dc = paintDot(dc, float64(i), float64(j), 5, getClosestColor(palette, closest))
+			dc = paintDot(dc, float64(i), float64(j), 6, getClosestColor(palette, closest))
 		}
 	}
 	dc.SaveJPG("output/out.jpeg", 80)
@@ -136,7 +137,10 @@ func getPalette(img image.Image, k int) []color.RGBA {
 
 func paintDot(dc *gg.Context, x float64, y float64, r float64, shade color.RGBA) *gg.Context {
 	dc.SetRGBA255(int(shade.R), int(shade.G), int(shade.B), int(shade.A))
-	dc.DrawPoint(x, y, r)
+	rand := float64(rand.Intn(360))
+	dc.RotateAbout(gg.Radians(rand), x, y)
+	dc.DrawEllipse(x, y, r, r/0.7)
+	dc.RotateAbout(gg.Radians(-rand), x, y)
 	dc.Fill()
 
 	return dc
