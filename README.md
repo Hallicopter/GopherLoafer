@@ -5,7 +5,7 @@ Idk pulls random images, makes it into a meaningless gif, waste of time smh. API
 
 ![Hail the mouse](https://raw.githubusercontent.com/Hallicopter/GopherLoafer/master/One/output/stolen.jpeg) ![Hail the mouse](https://raw.githubusercontent.com/Hallicopter/GopherLoafer/master/One/output/giffun.gif)
 
-### Two (wip)
+### Two (wip, end goal pointillism.)
 
 Generates a palette using kmeans, and does some sloppy colour distance measurement for generating "art". Lots of improvements can be made, such as generating good results.
 
